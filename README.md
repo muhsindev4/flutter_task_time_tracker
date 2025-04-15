@@ -1,15 +1,129 @@
-# flutter_task_time_tracker
+# ⏱️ Flutter Task Time Tracker
 
-A new Flutter project.
+A lightweight and persistent Flutter plugin to track time spent on tasks with background support and interactive notifications.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+## ✨ Features
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- ⏳ Start, pause, resume, and stop timers
+- 🔔 Awesome Notifications with interactive buttons
+- 💾 Hive-based local storage for timer persistence
+- 💥 Recover lost time when app is terminated
+- 🧠 Singleton-based architecture for easy access
+- 📡 Real-time updates using StreamController
+
+---
+
+## 📦 Installation
+
+Add this to your `pubspec.yaml`:
+
+    dependencies:
+      flutter_task_time_tracker: latest
+
+## 🚀 Getting Started
+
+### 1️⃣ Import the plugin
+
+    import 'package:flutter_task_time_tracker/flutter_task_time_tracker.dart';
+
+### 2️⃣ Initialize the tracker
+
+    await FlutterTaskTimeTracker().init(
+      addSecondsWhenTerminatedState: true,
+      autoStart: true,
+    );
+
+### 3️⃣ Access the timer controller
+
+    final timerController = FlutterTaskTimeTracker().timer;
+
+OR
+
+     final TimerController _controller=TimerController();
+
+## 🔁 Usage
+
+### Start a new timer:
+
+    await timerController.initTimer(
+      taskName: 'TaskName,
+      taskId: 'task_001',
+    );
+    timerController.startTimer();
+### Pause / Resume / Stop:
+
+    timerController.pauseTimer();
+    timerController.resumeTimer();
+    timerController.stopTimer();
+
+### Reset Timer:
+
+    timerController.resetTimer();
+### Listen to timer stream:
+
+    timerController.timerStream.listen((timerData) {
+      print('⏲️ Time: ${timerData?.totalTimeInSeconds}');
+    });
+
+## 🔔 Notifications
+
+Interactive notifications are handled using `awesome_notifications`. When active, users can pause, resume, or stop tasks directly from the notification.
+
+Make sure to configure permissions for Android and iOS as per the awesome_notifications setup guide.
+
+## 📂 Data Persistence
+
+Timers are saved in Hive box:
+
+-   Each change to the timer updates the stored data.
+
+-   On app restart or crash, the last state is recovered.
+
+-   `addSecondsWhenTerminatedState` helps recover the time lost while app was terminated.
+
+## 🧪 Methods Overview
+
+
+
+`init()`: Initializes Hive and Notifications
+
+`initTimer()`: Sets a new task timer
+
+
+
+`startTimer()`: Starts the timer
+
+
+
+`pauseTimer()`:Pauses the timer
+
+
+
+`resumeTimer()`:Resumes the paused timer
+
+
+
+`stopTimer()`: Stops the timer
+
+
+
+`resetTimer()`: Resets the timer and clears timestamps
+
+
+
+`getAllTimers()`: Fetches all saved timer sessions
+
+
+
+`getCurrentTimer()`: Gets the currently active timer
+
+
+
+`deleteCurrentTimer()`: Deletes the current timer
+
+
+
+`getFormattedTime()`: Returns formatted elapsed time
 
