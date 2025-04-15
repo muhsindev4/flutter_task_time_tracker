@@ -2,7 +2,6 @@ import 'package:hive/hive.dart';
 
 import '../../../flutter_task_time_tracker.dart';
 
-
 part 'timer_data.g.dart';
 
 @HiveType(typeId: 0)
@@ -36,7 +35,7 @@ class TimerData extends HiveObject {
 
   TimerData({
     required this.totalTimeInSeconds,
-     this.startedAt,
+    this.startedAt,
     this.stoppedAt,
     this.pausedAt,
     this.resumedAt,
@@ -70,4 +69,5 @@ class TimerData extends HiveObject {
     );
   }
 }
+
 //flutter pub run build_runner build

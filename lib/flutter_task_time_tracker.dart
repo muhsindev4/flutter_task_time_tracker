@@ -8,11 +8,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'flutter_task_time_tracker.dart';
 
 class FlutterTaskTimeTracker {
-  static final FlutterTaskTimeTracker _instance = FlutterTaskTimeTracker._internal();
+  static final FlutterTaskTimeTracker _instance =
+      FlutterTaskTimeTracker._internal();
 
-
-  factory FlutterTaskTimeTracker()=>_instance;
-
+  factory FlutterTaskTimeTracker() => _instance;
 
   FlutterTaskTimeTracker._internal();
 
@@ -20,12 +19,12 @@ class FlutterTaskTimeTracker {
   void Function(TimerData timerData)? _onPaused;
   void Function(TimerData timerData)? _onResumed;
   void Function(TimerData timerData)? _onStopped;
-  bool addSecondsWhenTerminatedState=false;
-  bool autoStart=false;
+  bool addSecondsWhenTerminatedState = false;
+  bool autoStart = false;
 
-  late  final  TimerController _timerController;
-  TimerController get  timer=>_timerController;
-  final NotificationHandler _notificationHandler=NotificationHandler();
+  late final TimerController _timerController;
+  TimerController get timer => _timerController;
+  final NotificationHandler _notificationHandler = NotificationHandler();
 
   /// Initialize Hive + Awesome Notifications
   Future<void> _initStorage() async {
@@ -38,8 +37,7 @@ class FlutterTaskTimeTracker {
       await Hive.openBox<TimerData>(Const.boxName);
     }
 
-
-    _timerController=  TimerController(
+    _timerController = TimerController(
       onStarted: _onStarted,
       onPaused: _onPaused,
       onResumed: _onResumed,
@@ -47,14 +45,17 @@ class FlutterTaskTimeTracker {
     );
   }
 
-  Future<void> init({bool addSecondsWhenTerminatedState=true,bool autoStart=true}) async {
+  Future<void> init({
+    bool addSecondsWhenTerminatedState = true,
+    bool autoStart = true,
+  }) async {
     await _initStorage();
 
     await _notificationHandler.initNotification();
 
-    await _timerController.loadLastTimer(addSecondsWhenTerminatedState: addSecondsWhenTerminatedState,autoStart: autoStart);
+    await _timerController.loadLastTimer(
+      addSecondsWhenTerminatedState: addSecondsWhenTerminatedState,
+      autoStart: autoStart,
+    );
   }
-
 }
-
-

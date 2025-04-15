@@ -9,23 +9,16 @@ class NotificationHandler {
   factory NotificationHandler() => _instance;
   NotificationHandler._internal();
 
-
   Future<void> initNotification() async {
-
-
-    await AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-          channelKey: Const.notificationChannelKey,
-          channelName: 'Timer Notifications',
-          channelDescription: 'Notification for active task timers',
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-        ),
-      ],
-      debug: true,
-    );
+    await AwesomeNotifications().initialize(null, [
+      NotificationChannel(
+        channelKey: Const.notificationChannelKey,
+        channelName: 'Timer Notifications',
+        channelDescription: 'Notification for active task timers',
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+    ], debug: true);
 
     // Add this line to register listeners
     AwesomeNotifications().setListeners(
@@ -75,7 +68,7 @@ class NotificationHandler {
         break;
 
       case TimerStatus.stopped:
-      // Dismiss notification
+        // Dismiss notification
         await AwesomeNotifications().cancel(1001);
         return;
       case TimerStatus.notStarted:
@@ -87,9 +80,10 @@ class NotificationHandler {
         id: 1001,
         channelKey: Const.notificationChannelKey,
         title: '⏱️ ${timerData.taskName}',
-        body: timerData.timerStatus == TimerStatus.paused
-            ? 'Timer is paused.'
-            : 'Timer is running...',
+        body:
+            timerData.timerStatus == TimerStatus.paused
+                ? 'Timer is paused.'
+                : 'Timer is running...',
         wakeUpScreen: true,
         locked: true,
         notificationLayout: NotificationLayout.Default,
@@ -97,20 +91,16 @@ class NotificationHandler {
         autoDismissible: false,
         backgroundColor: const Color(0xFF2196F3),
         showWhen: true,
-        chronometer: (timerData.timerStatus == TimerStatus.started || timerData.timerStatus == TimerStatus.resumed)
-            ? Duration(seconds: timerData.totalTimeInSeconds)
-            : null,
-        payload: {
-          'taskId': timerData.taskId,
-        },
+        chronometer:
+            (timerData.timerStatus == TimerStatus.started ||
+                    timerData.timerStatus == TimerStatus.resumed)
+                ? Duration(seconds: timerData.totalTimeInSeconds)
+                : null,
+        payload: {'taskId': timerData.taskId},
       ),
       actionButtons: actionButtons,
     );
   }
-
-
-
-
 }
 
 @pragma('vm:entry-point')

@@ -102,7 +102,9 @@ class TimerController {
   }
 
   void resumeTimer({bool forceResume = false}) {
-    if (_timerData == null || (_timerData!.timerStatus != TimerStatus.paused && !forceResume)) return;
+    if (_timerData == null ||
+        (_timerData!.timerStatus != TimerStatus.paused && !forceResume))
+      return;
 
     _timerData = _timerData!.copyWith(
       resumedAt: DateTime.now(),
@@ -156,15 +158,16 @@ class TimerController {
   }
 
   Future<void> _save() async {
-    _timerData = _timerData!.copyWith(
-      lastUpdateAt: DateTime.now(),
-    );
+    _timerData = _timerData!.copyWith(lastUpdateAt: DateTime.now());
     final box = Hive.box<TimerData>(Const.boxName);
     await box.put(Const.currentKey, _timerData!);
     log("💾 Timer data saved for task: ${_timerData?.taskName}");
   }
 
-  Future<void> loadLastTimer({bool addSecondsWhenTerminatedState = false, bool autoStart = false}) async {
+  Future<void> loadLastTimer({
+    bool addSecondsWhenTerminatedState = false,
+    bool autoStart = false,
+  }) async {
     final box = Hive.box<TimerData>(Const.boxName);
     _timerData = box.get(Const.currentKey);
 
@@ -172,10 +175,13 @@ class TimerController {
 
     _secondsElapsed = _timerData!.totalTimeInSeconds;
 
-    if (addSecondsWhenTerminatedState && timerData?.lastUpdateAt != null &&
-        (_timerData!.timerStatus == TimerStatus.started || _timerData!.timerStatus == TimerStatus.resumed)) {
+    if (addSecondsWhenTerminatedState &&
+        timerData?.lastUpdateAt != null &&
+        (_timerData!.timerStatus == TimerStatus.started ||
+            _timerData!.timerStatus == TimerStatus.resumed)) {
       final DateTime lastActiveTime = _timerData!.lastUpdateAt!;
-      final int missedSeconds = DateTime.now().difference(lastActiveTime).inSeconds;
+      final int missedSeconds =
+          DateTime.now().difference(lastActiveTime).inSeconds;
 
       _secondsElapsed += missedSeconds;
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);

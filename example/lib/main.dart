@@ -20,9 +20,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
-
-
 class TimerHomePage extends StatefulWidget {
   const TimerHomePage({super.key});
 
@@ -36,11 +33,7 @@ class _TimerHomePageState extends State<TimerHomePage> {
   @override
   void initState() {
     super.initState();
-    _controller = TimerController(
-      onStarted: (d){
-
-      }
-    );
+    _controller = TimerController(onStarted: (d) {});
     _controller.loadLastTimer(); // optional, if you want to load last session
   }
 
