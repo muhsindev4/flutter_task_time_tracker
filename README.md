@@ -3,6 +3,7 @@
 A lightweight and persistent Flutter plugin to track time spent on tasks with background support and interactive notifications.
 
 ---
+![A digital illustration showcasing the Flutter Task Time Tracker plugin. It features Flutter’s logo, task icons, clocks, and UI elements representing cross-platform time tracking. The layout emphasizes productivity, with a modern blue and white color palette.](https://miro.medium.com/v2/resize:fit:1400/format:webp/1*fbNSfXjpkE91wunpENrcaA.png)
 
 ## ✨ Features
 
