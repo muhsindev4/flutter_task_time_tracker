@@ -27,53 +27,53 @@ class NotificationHandler {
   }
 
   void showNotification(TimerData timerData) async {
-    List<NotificationActionButton> actionButtons = [];
-
-    switch (timerData.timerStatus) {
-      case TimerStatus.started:
-      case TimerStatus.resumed:
-        actionButtons = [
-          NotificationActionButton(
-            key: 'PAUSE',
-            label: 'Pause',
-            actionType: ActionType.SilentAction,
-            autoDismissible: false,
-          ),
-          NotificationActionButton(
-            key: 'STOP',
-            label: 'Stop',
-            actionType: ActionType.SilentAction,
-            isDangerousOption: true,
-            autoDismissible: false,
-          ),
-        ];
-        break;
-
-      case TimerStatus.paused:
-        actionButtons = [
-          NotificationActionButton(
-            key: 'RESUME',
-            label: 'Resume',
-            actionType: ActionType.SilentAction,
-            autoDismissible: false,
-          ),
-          NotificationActionButton(
-            key: 'STOP',
-            label: 'Stop',
-            actionType: ActionType.SilentAction,
-            isDangerousOption: true,
-            autoDismissible: false,
-          ),
-        ];
-        break;
-
-      case TimerStatus.stopped:
-        // Dismiss notification
-        await AwesomeNotifications().cancel(1001);
-        return;
-      case TimerStatus.notStarted:
-        return;
-    }
+    // List<NotificationActionButton> actionButtons = [];
+    //
+    // switch (timerData.timerStatus) {
+    //   case TimerStatus.started:
+    //   case TimerStatus.resumed:
+    //     actionButtons = [
+    //       NotificationActionButton(
+    //         key: 'PAUSE',
+    //         label: 'Pause',
+    //         actionType: ActionType.SilentAction,
+    //         autoDismissible: false,
+    //       ),
+    //       NotificationActionButton(
+    //         key: 'STOP',
+    //         label: 'Stop',
+    //         actionType: ActionType.SilentAction,
+    //         isDangerousOption: true,
+    //         autoDismissible: false,
+    //       ),
+    //     ];
+    //     break;
+    //
+    //   case TimerStatus.paused:
+    //     actionButtons = [
+    //       NotificationActionButton(
+    //         key: 'RESUME',
+    //         label: 'Resume',
+    //         actionType: ActionType.SilentAction,
+    //         autoDismissible: false,
+    //       ),
+    //       NotificationActionButton(
+    //         key: 'STOP',
+    //         label: 'Stop',
+    //         actionType: ActionType.SilentAction,
+    //         isDangerousOption: true,
+    //         autoDismissible: false,
+    //       ),
+    //     ];
+    //     break;
+    //
+    //   case TimerStatus.stopped:
+    //     // Dismiss notification
+    //     await AwesomeNotifications().cancel(1001);
+    //     return;
+    //   case TimerStatus.notStarted:
+    //     return;
+    // }
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -98,7 +98,7 @@ class NotificationHandler {
                 : null,
         payload: {'taskId': timerData.taskId},
       ),
-      actionButtons: actionButtons,
+      // actionButtons: actionButtons,
     );
   }
 }

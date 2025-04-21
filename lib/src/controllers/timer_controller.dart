@@ -8,6 +8,7 @@ import '../utils/const.dart';
 class TimerController {
   static final TimerController _instance = TimerController._internal();
   final NotificationHandler _notificationHandler = NotificationHandler();
+  DateTime? _lastLogTime;
 
   factory TimerController({
     void Function(TimerData timerData)? onStarted,
@@ -161,7 +162,14 @@ class TimerController {
     _timerData = _timerData!.copyWith(lastUpdateAt: DateTime.now());
     final box = Hive.box<TimerData>(Const.boxName);
     await box.put(Const.currentKey, _timerData!);
-    log("💾 Timer data saved for task: ${_timerData?.taskName}");
+
+    // show the log every 10 seconds
+    final now = DateTime.now();
+    if (_lastLogTime == null ||
+        now.difference(_lastLogTime!) >= const Duration(seconds: 10)) {
+      log("💾 Timer data saved for task: ${_timerData?.taskName}");
+      _lastLogTime = now;
+    }
   }
 
   Future<void> loadLastTimer({
@@ -189,7 +197,7 @@ class TimerController {
       log("⏱️ Added $missedSeconds seconds due to terminated state recovery.");
     }
 
-    if (autoStart) {
+    if (autoStart && _timerData!.timerStatus == TimerStatus.resumed) {
       resumeTimer(forceResume: true);
     }
 
