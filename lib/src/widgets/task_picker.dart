@@ -6,6 +6,8 @@ class TaskPicker extends StatefulWidget {
   final double? borderRadius;
   final List<TimerData> tasks;
   final TimerData? initialTask;
+  final Widget Function(TimerData)? titleBuilder;
+  final Widget Function(TimerData)? subtitleBuilder;
 
   const TaskPicker({
     super.key,
@@ -13,6 +15,8 @@ class TaskPicker extends StatefulWidget {
     this.borderRadius,
     required this.tasks,
     this.initialTask,
+    this.titleBuilder,
+    this.subtitleBuilder,
   });
 
   @override
@@ -30,9 +34,9 @@ class _TaskPickerState extends State<TaskPicker> {
   void initState() {
     super.initState();
 
-    // Initialize filteredTasks with all tasks
     _filteredTasks = widget.tasks;
     _selectedTechnicianTask = widget.initialTask;
+
     _searchController.addListener(() {
       _haveText.value = _searchController.text.isNotEmpty;
       _filterTasks(_searchController.text);
@@ -44,18 +48,11 @@ class _TaskPickerState extends State<TaskPicker> {
       if (query.isEmpty) {
         _filteredTasks = widget.tasks;
       } else {
-        _filteredTasks =
-            widget.tasks
-                .where(
-                  (task) =>
-                      task.taskName.toLowerCase().contains(
-                            query.toLowerCase(),
-                          ) ==
-                          true ||
-                      task.taskId.toLowerCase().contains(query.toLowerCase()) ==
-                          true,
-                )
-                .toList();
+        _filteredTasks = widget.tasks.where(
+              (task) =>
+          task.taskName.toLowerCase().contains(query.toLowerCase()) ||
+              task.taskId.toLowerCase().contains(query.toLowerCase()),
+        ).toList();
       }
     });
   }
@@ -71,13 +68,13 @@ class _TaskPickerState extends State<TaskPicker> {
           builder: (context, value, _) {
             return value
                 ? IconButton(
-                  onPressed: () {
-                    _searchController.clear();
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    _filterTasks("");
-                  },
-                  icon: const Icon(Icons.clear, color: Colors.grey),
-                )
+              onPressed: () {
+                _searchController.clear();
+                FocusManager.instance.primaryFocus?.unfocus();
+                _filterTasks("");
+              },
+              icon: const Icon(Icons.clear, color: Colors.grey),
+            )
                 : const SizedBox.shrink();
           },
         ),
@@ -123,7 +120,7 @@ class _TaskPickerState extends State<TaskPicker> {
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.8,
         child: Builder(
-          builder: (logic) {
+          builder: (_) {
             if (_filteredTasks.isEmpty) {
               return Column(
                 children: [
@@ -150,27 +147,34 @@ class _TaskPickerState extends State<TaskPicker> {
                   Expanded(
                     child: ListView.separated(
                       itemCount: _filteredTasks.length,
-                      itemBuilder: (BuildContext context, int index) {
+                      itemBuilder: (context, index) {
                         TimerData task = _filteredTasks[index];
                         return RadioListTile<TimerData>(
-                          title: Text(
+                          title: widget.titleBuilder != null
+                              ? widget.titleBuilder!(task)
+                              : Text(
                             task.taskId,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall!.copyWith(
-                              color: Theme.of(context).primaryColor,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall!
+                                .copyWith(
+                              color:
+                              Theme.of(context).primaryColor,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          subtitle: Text(
+                          subtitle: widget.subtitleBuilder != null
+                              ? widget.subtitleBuilder!(task)
+                              : Text(
                             task.taskName,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium!.copyWith(
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
                               color: Colors.black,
                               fontWeight: FontWeight.w700,
                             ),
@@ -187,9 +191,8 @@ class _TaskPickerState extends State<TaskPicker> {
                           },
                         );
                       },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return const Divider(color: Colors.black12);
-                      },
+                      separatorBuilder: (_, __) =>
+                      const Divider(color: Colors.black12),
                     ),
                   ),
                 ],

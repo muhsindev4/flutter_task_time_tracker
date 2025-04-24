@@ -53,6 +53,7 @@ class FlutterTaskTimeTracker {
     await _initStorage();
 
     await _notificationHandler.initNotification();
+    await _notificationHandler.requestPermission();
 
     await _timerController.loadLastTimer(
       addSecondsWhenTerminatedState: addSecondsWhenTerminatedState,

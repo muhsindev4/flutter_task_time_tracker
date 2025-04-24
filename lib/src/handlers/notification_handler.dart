@@ -9,6 +9,14 @@ class NotificationHandler {
   factory NotificationHandler() => _instance;
   NotificationHandler._internal();
 
+  Future<void> requestPermission() async {
+    bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+    if (!isAllowed) {
+      // Show a dialog or info before requesting
+      await AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+  }
+
   Future<void> initNotification() async {
     await AwesomeNotifications().initialize(null, [
       NotificationChannel(
