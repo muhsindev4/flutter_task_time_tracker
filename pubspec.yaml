@@ -1,6 +1,6 @@
 name: flutter_task_time_tracker
 description: "A cross-platform Flutter plugin for tracking task durations with background support, persistent storage using Hive, and interactive notifications using Awesome Notifications."
-version: 1.0.4
+version: 1.0.5
 homepage: https://github.com/muhsindev4/flutter_task_time_tracker.git
 
 environment:

@@ -68,6 +68,18 @@ class TimerData extends HiveObject {
       timerStatus: timerStatus ?? this.timerStatus,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is TimerData && taskId == other.taskId;
+  }
+
+  @override
+  int get hashCode {
+    return taskId.hashCode;
+  }
 }
 
 //flutter pub run build_runner build

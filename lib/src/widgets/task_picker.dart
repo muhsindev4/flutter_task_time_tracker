@@ -33,7 +33,6 @@ class _TaskPickerState extends State<TaskPicker> {
   @override
   void initState() {
     super.initState();
-
     _filteredTasks = widget.tasks;
     _selectedTechnicianTask = widget.initialTask;
 
@@ -48,11 +47,16 @@ class _TaskPickerState extends State<TaskPicker> {
       if (query.isEmpty) {
         _filteredTasks = widget.tasks;
       } else {
-        _filteredTasks = widget.tasks.where(
-              (task) =>
-          task.taskName.toLowerCase().contains(query.toLowerCase()) ||
-              task.taskId.toLowerCase().contains(query.toLowerCase()),
-        ).toList();
+        _filteredTasks =
+            widget.tasks
+                .where(
+                  (task) =>
+                      task.taskName.toLowerCase().contains(
+                        query.toLowerCase(),
+                      ) ||
+                      task.taskId.toLowerCase().contains(query.toLowerCase()),
+                )
+                .toList();
       }
     });
   }
@@ -68,13 +72,13 @@ class _TaskPickerState extends State<TaskPicker> {
           builder: (context, value, _) {
             return value
                 ? IconButton(
-              onPressed: () {
-                _searchController.clear();
-                FocusManager.instance.primaryFocus?.unfocus();
-                _filterTasks("");
-              },
-              icon: const Icon(Icons.clear, color: Colors.grey),
-            )
+                  onPressed: () {
+                    _searchController.clear();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    _filterTasks("");
+                  },
+                  icon: const Icon(Icons.clear, color: Colors.grey),
+                )
                 : const SizedBox.shrink();
           },
         ),
@@ -126,13 +130,16 @@ class _TaskPickerState extends State<TaskPicker> {
                 children: [
                   _header(),
                   _searchWidget(),
-                  const Spacer(),
-                  Center(
-                    child: Text(
-                      "No tasks are available at the moment.",
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w600,
+                  const SizedBox(height: 15),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        "No tasks are available at the moment.",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -150,35 +157,34 @@ class _TaskPickerState extends State<TaskPicker> {
                       itemBuilder: (context, index) {
                         TimerData task = _filteredTasks[index];
                         return RadioListTile<TimerData>(
-                          title: widget.titleBuilder != null
-                              ? widget.titleBuilder!(task)
-                              : Text(
-                            task.taskId,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall!
-                                .copyWith(
-                              color:
-                              Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          subtitle: widget.subtitleBuilder != null
-                              ? widget.subtitleBuilder!(task)
-                              : Text(
-                            task.taskName,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                          title:
+                              widget.titleBuilder != null
+                                  ? widget.titleBuilder!(task)
+                                  : Text(
+                                    task.taskId,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall!.copyWith(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                          subtitle:
+                              widget.subtitleBuilder != null
+                                  ? widget.subtitleBuilder!(task)
+                                  : Text(
+                                    task.taskName,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium!.copyWith(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
                           value: task,
                           groupValue: _selectedTechnicianTask,
                           onChanged: (TimerData? value) {
@@ -191,8 +197,8 @@ class _TaskPickerState extends State<TaskPicker> {
                           },
                         );
                       },
-                      separatorBuilder: (_, __) =>
-                      const Divider(color: Colors.black12),
+                      separatorBuilder:
+                          (_, __) => const Divider(color: Colors.black12),
                     ),
                   ),
                 ],

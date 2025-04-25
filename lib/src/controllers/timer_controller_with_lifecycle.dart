@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../flutter_task_time_tracker.dart';
+// import '../../flutter_task_time_tracker.dart';
 
 class TimerControllerWithLifecycle extends WidgetsBindingObserver {
-  final FlutterTaskTimeTracker _taskTimeTracker = FlutterTaskTimeTracker();
+  // final FlutterTaskTimeTracker _taskTimeTracker = FlutterTaskTimeTracker();
   static final TimerControllerWithLifecycle _instance =
       TimerControllerWithLifecycle._internal();
 
