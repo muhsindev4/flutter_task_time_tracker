@@ -89,6 +89,8 @@ class NotificationHandler {
         channelKey: Const.notificationChannelKey,
         title: '⏱️ ${timerData.taskName}',
         body:
+        timerData.timerStatus == TimerStatus.stopped
+            ? 'Timer is stopped.':
             timerData.timerStatus == TimerStatus.paused
                 ? 'Timer is paused.'
                 : 'Timer is running...',
