@@ -48,6 +48,7 @@ class TimerController {
     DateTime? resumedAt,
     int totalTimeInSeconds = 0,
     TimerStatus timerStatus = TimerStatus.stopped,
+    Map<String,dynamic>? metaData,
   }) async {
     _timerData = TimerData(
       startedAt: startedAt,
@@ -58,6 +59,7 @@ class TimerController {
       taskId: taskId,
       totalTimeInSeconds: totalTimeInSeconds,
       timerStatus: timerStatus,
+      metaData: metaData
     );
     _secondsElapsed = totalTimeInSeconds;
     await _save();
@@ -232,7 +234,8 @@ class TimerController {
 
   void _emit() => _timerStreamController.add(_timerData);
 
-  void dispose() {
+  Future<void> dispose() async {
+    await deleteCurrentTimer();
     _timer?.cancel();
     _timerStreamController.close();
     log("🧹 TimerController disposed.");

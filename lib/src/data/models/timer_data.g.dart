@@ -23,6 +23,7 @@ class TimerDataAdapter extends TypeAdapter<TimerData> {
       pausedAt: fields[3] as DateTime?,
       resumedAt: fields[4] as DateTime?,
       lastUpdateAt: fields[8] as DateTime?,
+      metaData: (fields[9] as Map?)?.cast<String, dynamic>(),
       taskName: fields[5] as String,
       taskId: fields[6] as String,
       timerStatus: fields[7] as TimerStatus,
@@ -32,7 +33,7 @@ class TimerDataAdapter extends TypeAdapter<TimerData> {
   @override
   void write(BinaryWriter writer, TimerData obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.totalTimeInSeconds)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class TimerDataAdapter extends TypeAdapter<TimerData> {
       ..writeByte(7)
       ..write(obj.timerStatus)
       ..writeByte(8)
-      ..write(obj.lastUpdateAt);
+      ..write(obj.lastUpdateAt)
+      ..writeByte(9)
+      ..write(obj.metaData);
   }
 
   @override
