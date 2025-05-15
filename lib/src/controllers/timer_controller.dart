@@ -194,6 +194,8 @@ class TimerController {
 
     _secondsElapsed = _timerData!.totalTimeInSeconds;
 
+    _initStreamController();
+
     if (addSecondsWhenTerminatedState &&
         timerData?.lastUpdateAt != null &&
         (_timerData!.timerStatus == TimerStatus.started ||

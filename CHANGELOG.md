@@ -1,3 +1,6 @@
+## [1.0.9] - Patch Work
+- Minor fixes and code improvements.
+
 ## [1.0.8] - Patch Work
 - Minor fixes and code improvements.
 
