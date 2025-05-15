@@ -36,7 +36,7 @@ class TimerController {
 
   StreamController<TimerData?>? _timerStreamController;
 
-  Stream<TimerData?> get timerStream => _timerStreamController!.stream;
+  Stream<TimerData?>? get timerStream => _timerStreamController?.stream;
 
   TimerData? get timerData => _timerData;
 
