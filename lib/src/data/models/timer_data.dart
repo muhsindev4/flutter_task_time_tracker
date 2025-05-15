@@ -34,7 +34,7 @@ class TimerData extends HiveObject {
   final DateTime? lastUpdateAt;
 
   @HiveField(9)
-  final Map<String,dynamic>? metaData;
+  final Map<String, dynamic>? metaData;
 
   TimerData({
     required this.totalTimeInSeconds,
@@ -59,7 +59,7 @@ class TimerData extends HiveObject {
     String? taskName,
     String? taskId,
     TimerStatus? timerStatus,
-    Map<String,dynamic>? metaData,
+    Map<String, dynamic>? metaData,
   }) {
     return TimerData(
       totalTimeInSeconds: totalTimeInSeconds ?? this.totalTimeInSeconds,
