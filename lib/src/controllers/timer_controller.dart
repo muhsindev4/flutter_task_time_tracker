@@ -34,8 +34,9 @@ class TimerController {
   TimerData? _timerData;
   int _secondsElapsed = 0;
 
-  final _timerStreamController = StreamController<TimerData?>.broadcast();
-  Stream<TimerData?> get timerStream => _timerStreamController.stream;
+  StreamController<TimerData?>? _timerStreamController;
+
+  Stream<TimerData?> get timerStream => _timerStreamController!.stream;
 
   TimerData? get timerData => _timerData;
 
@@ -48,7 +49,7 @@ class TimerController {
     DateTime? resumedAt,
     int totalTimeInSeconds = 0,
     TimerStatus timerStatus = TimerStatus.stopped,
-    Map<String,dynamic>? metaData,
+    Map<String, dynamic>? metaData,
   }) async {
     _timerData = TimerData(
       startedAt: startedAt,
@@ -59,12 +60,19 @@ class TimerController {
       taskId: taskId,
       totalTimeInSeconds: totalTimeInSeconds,
       timerStatus: timerStatus,
-      metaData: metaData
+      metaData: metaData,
     );
+    _initStreamController();
     _secondsElapsed = totalTimeInSeconds;
     await _save();
     _emit();
     log("🕒 Timer initialized for task: $taskName [$taskId]");
+  }
+
+  void _initStreamController() {
+    if (_timerStreamController == null || _timerStreamController!.isClosed) {
+      _timerStreamController = StreamController<TimerData?>.broadcast();
+    }
   }
 
   void startTimer() {
@@ -106,8 +114,9 @@ class TimerController {
 
   void resumeTimer({bool forceResume = false}) {
     if (_timerData == null ||
-        (_timerData!.timerStatus != TimerStatus.paused && !forceResume))
+        (_timerData!.timerStatus != TimerStatus.paused && !forceResume)) {
       return;
+    }
 
     _timerData = _timerData!.copyWith(
       resumedAt: DateTime.now(),
@@ -232,12 +241,20 @@ class TimerController {
     return duration.toString().split('.').first.padLeft(8, "0");
   }
 
-  void _emit() => _timerStreamController.add(_timerData);
+  void _emit() {
+    if (_timerStreamController != null && !_timerStreamController!.isClosed) {
+      _timerStreamController!.add(_timerData);
+    } else {
+      log("⚠️ Attempted to emit after stream was closed.");
+    }
+  }
 
   Future<void> dispose() async {
     await deleteCurrentTimer();
     _timer?.cancel();
-    _timerStreamController.close();
+    if (_timerStreamController != null && !_timerStreamController!.isClosed) {
+      _timerStreamController!.close();
+    }
     log("🧹 TimerController disposed.");
   }
 }

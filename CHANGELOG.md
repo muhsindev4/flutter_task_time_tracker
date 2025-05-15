@@ -1,3 +1,6 @@
+## [1.0.8] - Patch Work
+- Minor fixes and code improvements.
+
 ## [1.0.7] - 2025-05-07
 ### Added
 - Metadata support in `TimerData` model via `metaData` field.
