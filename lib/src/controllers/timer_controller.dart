@@ -97,7 +97,7 @@ class TimerController {
     log("▶️ Timer started: ${_timerData!.taskName}");
   }
 
-  void pauseTimer({bool showNotification=false}) {
+  void pauseTimer({bool showNotification=true}) {
     if (_timer == null || _timerData == null) return;
 
     _timer?.cancel();
@@ -213,7 +213,7 @@ class TimerController {
       log("⏱️ Added $missedSeconds seconds due to terminated state recovery.");
     }
 
-    if (autoStart && _timerData!.timerStatus == TimerStatus.resumed) {
+    if (autoStart && _timerData!.timerStatus == TimerStatus.resumed||_timerData!.timerStatus == TimerStatus.started) {
       resumeTimer(forceResume: true);
     }
 
