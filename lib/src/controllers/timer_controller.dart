@@ -97,7 +97,7 @@ class TimerController {
     log("▶️ Timer started: ${_timerData!.taskName}");
   }
 
-  void pauseTimer() {
+  void pauseTimer({bool showNotification=false}) {
     if (_timer == null || _timerData == null) return;
 
     _timer?.cancel();
@@ -105,7 +105,10 @@ class TimerController {
       pausedAt: DateTime.now(),
       timerStatus: TimerStatus.paused,
     );
-    _notificationHandler.showNotification(timerData!);
+    if(showNotification){
+      _notificationHandler.showNotification(timerData!);
+    }
+
     _onPaused?.call(timerData!);
     _emit();
     _save();
