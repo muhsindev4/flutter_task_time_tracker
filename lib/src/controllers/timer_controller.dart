@@ -9,6 +9,8 @@ class TimerController {
   static final TimerController _instance = TimerController._internal();
   final NotificationHandler _notificationHandler = NotificationHandler();
   DateTime? _lastLogTime;
+  bool _showNotification=true;
+  bool get notificationStatus=>_showNotification;
 
   factory TimerController({
     void Function(TimerData timerData)? onStarted,
@@ -69,6 +71,18 @@ class TimerController {
     log("🕒 Timer initialized for task: $taskName [$taskId]");
   }
 
+  bool enableNotification(){
+    _showNotification=true;
+    return _showNotification;
+  }
+
+  bool disableNotification(){
+    _showNotification=false;
+    return _showNotification;
+  }
+
+
+
   void _initStreamController() {
     if (_timerStreamController == null || _timerStreamController!.isClosed) {
       _timerStreamController = StreamController<TimerData?>.broadcast();
@@ -90,14 +104,17 @@ class TimerController {
       _emit();
       _save();
     });
-    _notificationHandler.showNotification(timerData!);
+    if(_showNotification){
+      _notificationHandler.showNotification(timerData!);
+    }
+
     _onStarted?.call(timerData!);
     _emit();
     _save();
     log("▶️ Timer started: ${_timerData!.taskName}");
   }
 
-  void pauseTimer({bool showNotification=true}) {
+  void pauseTimer() {
     if (_timer == null || _timerData == null) return;
 
     _timer?.cancel();
@@ -105,7 +122,7 @@ class TimerController {
       pausedAt: DateTime.now(),
       timerStatus: TimerStatus.paused,
     );
-    if(showNotification){
+    if(_showNotification){
       _notificationHandler.showNotification(timerData!);
     }
 
@@ -132,7 +149,10 @@ class TimerController {
       _emit();
       _save();
     });
-    _notificationHandler.showNotification(timerData!);
+    if(_showNotification){
+      _notificationHandler.showNotification(timerData!);
+    }
+
     _onResumed?.call(timerData!);
     _emit();
     _save();
@@ -147,7 +167,10 @@ class TimerController {
         stoppedAt: DateTime.now(),
       );
     }
-    _notificationHandler.showNotification(timerData!);
+    if(_showNotification){
+      _notificationHandler.showNotification(timerData!);
+    }
+
     _onStopped?.call(timerData!);
     _emit();
     _save();
