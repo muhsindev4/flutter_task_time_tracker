@@ -251,7 +251,6 @@ class TimerController with WidgetsBindingObserver {
 
   Future<void> _loadMinimisedTime() async {
     int sec = _appResumedAt!.difference(_appPausedAt!).inSeconds;
-    log("🧹 App State : $_appPausedAt -- $_appResumedAt --  $sec -- $_secondsElapsed  ${_secondsElapsed+sec}");
     _secondsElapsed += sec;
     _appPausedAt = null;
     _appResumedAt = null;
@@ -339,10 +338,9 @@ class TimerController with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    if (_appResumedAt != null && _appPausedAt != null) {
+    if (_appResumedAt != null && _appPausedAt != null&&timerData!=null) {
       _loadMinimisedTime();
     }
-    print("_appResumedAt==$_appResumedAt : $_appPausedAt  : $state  ");
     switch (state) {
       case AppLifecycleState.resumed:
         if (_appPausedAt != null) {
@@ -352,7 +350,7 @@ class TimerController with WidgetsBindingObserver {
       case AppLifecycleState.inactive:
         return;
       case AppLifecycleState.paused:
-        if(_appPausedAt==null){
+        if(_appPausedAt==null&&timerData!=null){
           _lazyPause();
           _appPausedAt = DateTime.now();
         }

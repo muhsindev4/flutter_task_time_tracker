@@ -1,3 +1,6 @@
+## [1.0.15] - Patch Work
+- fixed timer issue
+
 ## [1.0.14] - Patch Work
 - fixed timer issue
 
