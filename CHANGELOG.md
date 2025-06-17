@@ -1,3 +1,6 @@
+## [1.0.14] - Patch Work
+- fixed timer issue
+
 ## [1.0.13] - Patch Work
 - added notification status
 ## [1.0.12] - Patch Work

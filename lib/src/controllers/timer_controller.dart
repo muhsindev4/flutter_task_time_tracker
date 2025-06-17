@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_task_time_tracker/flutter_task_time_tracker.dart';
 import '../handlers/notification_handler.dart';
 import '../utils/const.dart';
 
-class TimerController {
+class TimerController with WidgetsBindingObserver {
   static final TimerController _instance = TimerController._internal();
   final NotificationHandler _notificationHandler = NotificationHandler();
   DateTime? _lastLogTime;
-  bool _showNotification=true;
-  bool get notificationStatus=>_showNotification;
+  bool _showNotification = true;
+
+  bool get notificationStatus => _showNotification;
 
   factory TimerController({
     void Function(TimerData timerData)? onStarted,
@@ -22,6 +24,7 @@ class TimerController {
     _instance._onPaused ??= onPaused;
     _instance._onResumed ??= onResumed;
     _instance._onStopped ??= onStopped;
+    WidgetsBinding.instance.addObserver(_instance);
     return _instance;
   }
 
@@ -41,6 +44,9 @@ class TimerController {
   Stream<TimerData?>? get timerStream => _timerStreamController?.stream;
 
   TimerData? get timerData => _timerData;
+
+  DateTime? _appPausedAt;
+  DateTime? _appResumedAt;
 
   Future<void> initTimer({
     required String taskName,
@@ -71,17 +77,15 @@ class TimerController {
     log("🕒 Timer initialized for task: $taskName [$taskId]");
   }
 
-  bool enableNotification(){
-    _showNotification=true;
+  bool enableNotification() {
+    _showNotification = true;
     return _showNotification;
   }
 
-  bool disableNotification(){
-    _showNotification=false;
+  bool disableNotification() {
+    _showNotification = false;
     return _showNotification;
   }
-
-
 
   void _initStreamController() {
     if (_timerStreamController == null || _timerStreamController!.isClosed) {
@@ -104,7 +108,7 @@ class TimerController {
       _emit();
       _save();
     });
-    if(_showNotification){
+    if (_showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
@@ -122,7 +126,7 @@ class TimerController {
       pausedAt: DateTime.now(),
       timerStatus: TimerStatus.paused,
     );
-    if(_showNotification){
+    if (_showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
@@ -149,7 +153,7 @@ class TimerController {
       _emit();
       _save();
     });
-    if(_showNotification){
+    if (_showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
@@ -167,7 +171,7 @@ class TimerController {
         stoppedAt: DateTime.now(),
       );
     }
-    if(_showNotification){
+    if (_showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
@@ -236,12 +240,57 @@ class TimerController {
       log("⏱️ Added $missedSeconds seconds due to terminated state recovery.");
     }
 
-    if (autoStart && _timerData!.timerStatus == TimerStatus.resumed||_timerData!.timerStatus == TimerStatus.started) {
+    if (autoStart && _timerData!.timerStatus == TimerStatus.resumed ||
+        _timerData!.timerStatus == TimerStatus.started) {
       resumeTimer(forceResume: true);
     }
 
     _emit();
     log("📦 Last timer loaded for task: ${_timerData?.taskName}");
+  }
+
+  Future<void> _loadMinimisedTime() async {
+    int sec = _appResumedAt!.difference(_appPausedAt!).inSeconds;
+    log("🧹 App State : $_appPausedAt -- $_appResumedAt --  $sec -- $_secondsElapsed  ${_secondsElapsed+sec}");
+    _secondsElapsed += sec;
+    _appPausedAt = null;
+    _appResumedAt = null;
+    _lazyResume();
+  }
+
+  _lazyPause(){
+    if (_timer == null || _timerData == null) return;
+    //
+    _timer?.cancel();
+    _timerData = _timerData!.copyWith(
+      pausedAt: DateTime.now(),
+      timerStatus: TimerStatus.paused,
+    );
+    _save();
+    log("⏸️ Timer lazy paused: ${_timerData!.taskName}");
+  }
+
+  _lazyResume(){
+    if (_timerData == null ||
+        (_timerData!.timerStatus != TimerStatus.paused )) {
+      return;
+    }
+
+    _timerData = _timerData!.copyWith(
+      resumedAt: DateTime.now(),
+      timerStatus: TimerStatus.resumed,
+    );
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _secondsElapsed++;
+      _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
+      _emit();
+      _save();
+    });
+    _onResumed?.call(timerData!);
+    _emit();
+    _save();
+    log("⏯️ Timer lazy resumed: ${_timerData!.taskName}");
   }
 
   Future<List<TimerData>> getAllTimers() async {
@@ -284,5 +333,37 @@ class TimerController {
       _timerStreamController!.close();
     }
     log("🧹 TimerController disposed.");
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    if (_appResumedAt != null && _appPausedAt != null) {
+      _loadMinimisedTime();
+    }
+    print("_appResumedAt==$_appResumedAt : $_appPausedAt  : $state  ");
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (_appPausedAt != null) {
+          _appResumedAt ??= DateTime.now();
+        }
+        return;
+      case AppLifecycleState.inactive:
+        return;
+      case AppLifecycleState.paused:
+        if(_appPausedAt==null){
+          _lazyPause();
+          _appPausedAt = DateTime.now();
+        }
+
+        return;
+      case AppLifecycleState.detached:
+        _appPausedAt = null;
+        _appResumedAt = null;
+        return;
+      case AppLifecycleState.hidden:
+        return;
+    }
   }
 }
