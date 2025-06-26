@@ -9,6 +9,10 @@ class TaskPicker extends StatefulWidget {
   final Widget Function(TimerData)? titleBuilder;
   final Widget Function(TimerData)? subtitleBuilder;
 
+  final String hintText;
+  final String noDataText;
+  final String headerText;
+
   const TaskPicker({
     super.key,
     required this.onPicked,
@@ -17,6 +21,9 @@ class TaskPicker extends StatefulWidget {
     this.initialTask,
     this.titleBuilder,
     this.subtitleBuilder,
+    this.hintText="Search task",
+    this.noDataText="No tasks are available at the moment.",
+    this.headerText="Choose Task",
   });
 
   @override
@@ -83,7 +90,7 @@ class _TaskPickerState extends State<TaskPicker> {
           },
         ),
         prefixIcon: const Icon(Icons.search, color: Colors.grey),
-        hintText: "Search task",
+        hintText: widget.hintText,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(50)),
         contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       ),
@@ -97,7 +104,7 @@ class _TaskPickerState extends State<TaskPicker> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              "Choose Task",
+              widget.headerText,
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 color: Colors.black,
                 fontWeight: FontWeight.w900,
@@ -134,7 +141,7 @@ class _TaskPickerState extends State<TaskPicker> {
                   Expanded(
                     child: Center(
                       child: Text(
-                        "No tasks are available at the moment.",
+                        widget.noDataText,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                           color: Colors.grey,
