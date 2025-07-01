@@ -47,6 +47,7 @@ class TimerController with WidgetsBindingObserver {
 
   DateTime? _appPausedAt;
   DateTime? _appResumedAt;
+  bool _enableLazypause = true;
 
   Future<void> initTimer({
     required String taskName,
@@ -249,16 +250,28 @@ class TimerController with WidgetsBindingObserver {
     log("📦 Last timer loaded for task: ${_timerData?.taskName}");
   }
 
-  Future<void> _loadMinimisedTime() async {
-    int sec = _appResumedAt!.difference(_appPausedAt!).inSeconds;
-    _secondsElapsed += sec;
-    _appPausedAt = null;
-    _appResumedAt = null;
-    _lazyResume();
+  void disableLazyPause() {
+    _enableLazypause = false;
   }
 
-  _lazyPause(){
-    if (_timer == null || _timerData == null) return;
+  void enableLazyPause() {
+    _enableLazypause = true;
+  }
+
+  Future<void> _loadMinimisedTime() async {
+    if (_timerData?.timerStatus == TimerStatus.started ||
+        _timerData?.timerStatus == TimerStatus.resumed ||
+        _enableLazypause) {
+      int sec = _appResumedAt!.difference(_appPausedAt!).inSeconds;
+      _secondsElapsed += sec;
+      _appPausedAt = null;
+      _appResumedAt = null;
+      _lazyResume();
+    }
+  }
+
+  _lazyPause() {
+    if (_timer == null || _timerData == null || !_enableLazypause) return;
     //
     _timer?.cancel();
     _timerData = _timerData!.copyWith(
@@ -269,9 +282,8 @@ class TimerController with WidgetsBindingObserver {
     log("⏸️ Timer lazy paused: ${_timerData!.taskName}");
   }
 
-  _lazyResume(){
-    if (_timerData == null ||
-        (_timerData!.timerStatus != TimerStatus.paused )) {
+  _lazyResume() {
+    if (_timerData == null || (_timerData!.timerStatus != TimerStatus.paused)) {
       return;
     }
 
@@ -338,7 +350,7 @@ class TimerController with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    if (_appResumedAt != null && _appPausedAt != null&&timerData!=null) {
+    if (_appResumedAt != null && _appPausedAt != null && timerData != null) {
       _loadMinimisedTime();
     }
     switch (state) {
@@ -350,7 +362,7 @@ class TimerController with WidgetsBindingObserver {
       case AppLifecycleState.inactive:
         return;
       case AppLifecycleState.paused:
-        if(_appPausedAt==null&&timerData!=null){
+        if (_appPausedAt == null && timerData != null) {
           _lazyPause();
           _appPausedAt = DateTime.now();
         }
