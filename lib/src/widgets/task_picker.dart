@@ -12,7 +12,9 @@ class TaskPicker extends StatefulWidget {
   final String hintText;
   final String noDataText;
   final String headerText;
-
+  final bool clearDataWhenLoadMore;
+  /// Called when scrolled to bottom; must return more TimerData
+  final Future<List<TimerData>> Function(int currentLength)? onLoadMore;
   const TaskPicker({
     super.key,
     required this.onPicked,
@@ -24,6 +26,8 @@ class TaskPicker extends StatefulWidget {
     this.hintText="Search task",
     this.noDataText="No tasks are available at the moment.",
     this.headerText="Choose Task",
+    this.onLoadMore,
+    this.clearDataWhenLoadMore=false,
   });
 
   @override
@@ -34,28 +38,55 @@ class _TaskPickerState extends State<TaskPicker> {
   final TextEditingController _searchController = TextEditingController();
   final ValueNotifier<bool> _haveText = ValueNotifier(false);
   TimerData? _selectedTechnicianTask;
-
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
   List<TimerData> _filteredTasks = [];
+  List<TimerData> get _tasks => widget.tasks;
 
   @override
   void initState() {
     super.initState();
-    _filteredTasks = widget.tasks;
+    _filteredTasks = _tasks;
     _selectedTechnicianTask = widget.initialTask;
 
     _searchController.addListener(() {
       _haveText.value = _searchController.text.isNotEmpty;
       _filterTasks(_searchController.text);
     });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 100 &&
+          !_isLoadingMore &&
+          widget.onLoadMore != null) {
+        _loadMoreTasks();
+      }
+    });
+  }
+
+  Future<void> _loadMoreTasks() async {
+    _isLoadingMore = true;
+    final moreTasks = await widget.onLoadMore!.call(_filteredTasks.length);
+    if (moreTasks.isNotEmpty) {
+      if(widget.clearDataWhenLoadMore){
+        _filteredTasks.clear();
+        // _tasks.clear();
+      }
+      setState(() {
+        // _tasks.addAll(moreTasks);
+        _filteredTasks=moreTasks;
+      });
+    }
+    _isLoadingMore = false;
   }
 
   void _filterTasks(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredTasks = widget.tasks;
+        _filteredTasks = _tasks;
       } else {
         _filteredTasks =
-            widget.tasks
+            _tasks
                 .where(
                   (task) =>
                       task.taskName.toLowerCase().contains(
@@ -160,8 +191,15 @@ class _TaskPickerState extends State<TaskPicker> {
                   const SizedBox(height: 15),
                   Expanded(
                     child: ListView.separated(
-                      itemCount: _filteredTasks.length,
+                      controller: _scrollController,
+                      itemCount: _filteredTasks.length + (_isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
+                        if (index == _filteredTasks.length) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
                         TimerData task = _filteredTasks[index];
                         return RadioListTile<TimerData>(
                           title:

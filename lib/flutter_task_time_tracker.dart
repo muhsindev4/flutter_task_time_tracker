@@ -2,7 +2,6 @@ export 'package:flutter_task_time_tracker/src/data/enum/timer_status.dart';
 export 'package:flutter_task_time_tracker/src/data/models/timer_data.dart';
 export 'package:flutter_task_time_tracker/src/controllers/timer_controller.dart';
 export 'package:flutter_task_time_tracker/src/widgets/task_picker.dart';
-import 'package:flutter_task_time_tracker/src/controllers/timer_controller_with_lifecycle.dart';
 import 'package:flutter_task_time_tracker/src/handlers/notification_handler.dart';
 import 'package:flutter_task_time_tracker/src/utils/const.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -60,6 +59,5 @@ class FlutterTaskTimeTracker {
       autoStart: autoStart,
     );
 
-    TimerControllerWithLifecycle().initObserver();
   }
 }

@@ -1,4 +1,6 @@
-## [1.0.19] - Patch Work
+## [1.0.20] - Patch Work
+- fixed timer issue
+- ## [1.0.19] - Patch Work
 - fixed timer issue
 
 ## [1.0.18] - Patch Work
