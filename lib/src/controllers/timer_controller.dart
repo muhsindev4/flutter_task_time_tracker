@@ -133,7 +133,7 @@ class TimerController with WidgetsBindingObserver {
   }
 
   void pauseTimer() {
-    if (_timer == null || _timerData == null) return;
+    if (_timerData == null) return;
 
     _timer?.cancel();
     _timerData = _timerData!.copyWith(
@@ -277,7 +277,7 @@ class TimerController with WidgetsBindingObserver {
   }
 
   _lazyPause() {
-    if (_timer == null || _timerData == null ) return;
+    if (_timerData == null ) return;
     //
     _timer?.cancel();
     _timerData = _timerData!.copyWith(
