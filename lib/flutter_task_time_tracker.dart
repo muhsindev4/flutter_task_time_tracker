@@ -5,6 +5,7 @@ export 'package:flutter_task_time_tracker/src/widgets/task_picker.dart';
 import 'package:flutter_task_time_tracker/src/handlers/notification_handler.dart';
 import 'package:flutter_task_time_tracker/src/utils/const.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:workmanager/workmanager.dart';
 import 'flutter_task_time_tracker.dart';
 
 class FlutterTaskTimeTracker {
@@ -49,6 +50,13 @@ class FlutterTaskTimeTracker {
     bool addSecondsWhenTerminatedState = true,
     bool autoStart = true,
   }) async {
+
+    Workmanager().initialize(
+        callbackDispatcher,
+        isInDebugMode: true
+    );
+
+
     await _initStorage();
 
     await _notificationHandler.initNotification();
@@ -60,4 +68,24 @@ class FlutterTaskTimeTracker {
     );
 
   }
+}
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    await Hive.initFlutter();
+
+    Hive.registerAdapter(TimerDataAdapter());
+    Hive.registerAdapter(TimerStatusAdapter());
+    final box = await Hive.openBox<TimerData>(Const.boxName);
+    TimerData? current = box.get(Const.currentKey);
+
+    if (current != null && inputData?['wasTerminatedDuringTimer'] == true) {
+      final updated = current.copyWith(wasTerminatedDuringTimer: true);
+      await box.put(Const.currentKey, updated);
+      print("✅ WorkManager: Terminated flag set on TimerData");
+    }
+
+    return Future.value(true);
+  });
 }

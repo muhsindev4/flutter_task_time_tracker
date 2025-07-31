@@ -34,6 +34,9 @@ class TimerData extends HiveObject {
   final DateTime? lastUpdateAt;
 
   @HiveField(9)
+  final bool wasTerminatedDuringTimer;
+
+  @HiveField(10)
   final Map<String, dynamic>? metaData;
 
   TimerData({
@@ -47,6 +50,7 @@ class TimerData extends HiveObject {
     required this.taskName,
     required this.taskId,
     required this.timerStatus,
+     this.wasTerminatedDuringTimer=false,
   });
 
   TimerData copyWith({
@@ -59,6 +63,7 @@ class TimerData extends HiveObject {
     String? taskName,
     String? taskId,
     TimerStatus? timerStatus,
+    bool? wasTerminatedDuringTimer,
     Map<String, dynamic>? metaData,
   }) {
     return TimerData(
@@ -72,6 +77,7 @@ class TimerData extends HiveObject {
       taskId: taskId ?? this.taskId,
       timerStatus: timerStatus ?? this.timerStatus,
       metaData: metaData ?? this.metaData,
+      wasTerminatedDuringTimer: wasTerminatedDuringTimer ?? this.wasTerminatedDuringTimer,
     );
   }
 
