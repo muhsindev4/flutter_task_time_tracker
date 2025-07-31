@@ -1,4 +1,4 @@
-## [1.0.21] - Patch Work
+## [1.0.22] - Patch Work
 - added workmanager for handling terminated state
 ## [1.0.21] - Patch Work
 - fixed timer issue
