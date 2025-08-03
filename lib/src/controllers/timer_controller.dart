@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_task_time_tracker/flutter_task_time_tracker.dart';
+import 'package:workmanager/workmanager.dart';
 import '../handlers/notification_handler.dart';
 import '../utils/const.dart';
 
@@ -10,9 +11,7 @@ class TimerController with WidgetsBindingObserver {
   static final TimerController _instance = TimerController._internal();
   final NotificationHandler _notificationHandler = NotificationHandler();
   DateTime? _lastLogTime;
-  bool _showNotification = true;
 
-  bool get notificationStatus => _showNotification;
 
   factory TimerController({
     void Function(TimerData timerData)? onStarted,
@@ -82,24 +81,15 @@ class TimerController with WidgetsBindingObserver {
     _secondsElapsed = totalTimeInSeconds;
     await _save();
     _emit();
-    log("🕒 Timer initialized for task: $taskName [$taskId]");
+    print("🕒 Timer initialized for task: $taskName [$taskId]");
 
     // 👇 Trigger onInitListener if set
     if (_onInitListener != null) {
       _onInitListener!(_timerData!);
     }
-    log("🕒 Timer initialized for task: $taskName [$taskId]");
+    print("🕒 Timer initialized for task: $taskName [$taskId]");
   }
 
-  bool enableNotification() {
-    _showNotification = true;
-    return _showNotification;
-  }
-
-  bool disableNotification() {
-    _showNotification = false;
-    return _showNotification;
-  }
 
   void _initStreamController() {
     if (_timerStreamController == null || _timerStreamController!.isClosed) {
@@ -107,7 +97,7 @@ class TimerController with WidgetsBindingObserver {
     }
   }
 
-  void startTimer() {
+  void startTimer({bool showNotification=true}) {
     if (_timerData == null) return;
 
     _timerData = _timerData!.copyWith(
@@ -122,17 +112,17 @@ class TimerController with WidgetsBindingObserver {
       _emit();
       _save();
     });
-    if (_showNotification) {
+    if (showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
     _onStarted?.call(timerData!);
     _emit();
     _save();
-    log("▶️ Timer started: ${_timerData!.taskName}");
+    print("▶️ Timer started: ${_timerData!.taskName}");
   }
 
-  void pauseTimer() {
+  void pauseTimer({bool showNotification=true}) {
     if (_timerData == null) return;
 
     _timer?.cancel();
@@ -140,16 +130,19 @@ class TimerController with WidgetsBindingObserver {
       pausedAt: DateTime.now(),
       timerStatus: TimerStatus.paused,
     );
-    if (_showNotification) {
+    if (showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
     _onPaused?.call(timerData!);
     _emit();
     _save();
+    print("⏸️ Timer paused: ${_timerData!.taskName}");
   }
 
-  void resumeTimer({bool forceResume = false}) {
+  void resumeTimer({bool forceResume = false,bool showNotification=true}) {
+    print("TAG:TimerController:_timerData!.timerStatus != TimerStatus.paused==${_timerData!.timerStatus != TimerStatus.paused}");
+    print("TAG:TimerController:!forceResume==${!forceResume}");
     if (_timerData == null ||
         (_timerData!.timerStatus != TimerStatus.paused && !forceResume)) {
       return;
@@ -162,21 +155,22 @@ class TimerController with WidgetsBindingObserver {
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _secondsElapsed++;
+      print("Timer resumed:  --${_secondsElapsed}");
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
       _emit();
       _save();
     });
-    if (_showNotification) {
+    if (showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
     _onResumed?.call(timerData!);
     _emit();
     _save();
-    log("⏯️ Timer resumed: ${_timerData!.taskName}");
+    print("⏯️ Timer resumed: ${_timerData!.taskName}");
   }
 
-  void stopTimer() {
+  void stopTimer({bool showNotification=true}) {
     _timer?.cancel();
     if (_timerData != null) {
       _timerData = _timerData!.copyWith(
@@ -184,14 +178,14 @@ class TimerController with WidgetsBindingObserver {
         stoppedAt: DateTime.now(),
       );
     }
-    if (_showNotification) {
+    if (showNotification) {
       _notificationHandler.showNotification(timerData!);
     }
 
     _onStopped?.call(timerData!);
     _emit();
     _save();
-    log("⏹️ Timer stopped: ${_timerData!.taskName}");
+    print("⏹️ Timer stopped: ${_timerData!.taskName}");
   }
 
   void resetTimer() {
@@ -209,6 +203,7 @@ class TimerController with WidgetsBindingObserver {
     _secondsElapsed = 0;
     _emit();
     _save();
+    print("🔁 Timer reset: ${_timerData?.taskName}");
   }
 
   Future<void> _save() async {
@@ -220,6 +215,7 @@ class TimerController with WidgetsBindingObserver {
     final now = DateTime.now();
     if (_lastLogTime == null ||
         now.difference(_lastLogTime!) >= const Duration(seconds: 10)) {
+      print("💾 Timer data saved for task: ${_timerData?.taskName}");
       _lastLogTime = now;
     }
   }
@@ -230,7 +226,10 @@ class TimerController with WidgetsBindingObserver {
   }) async {
     final box = Hive.box<TimerData>(Const.boxName);
     _timerData = box.get(Const.currentKey);
+
+    print("TAG:TimerController:${_timerData==null}");
     if (_timerData == null) return;
+    print("wasTerminatedDuringTimer==${_timerData?.wasTerminatedDuringTimer}");
     _secondsElapsed = _timerData!.totalTimeInSeconds;
 
     _initStreamController();
@@ -247,17 +246,22 @@ class TimerController with WidgetsBindingObserver {
       _secondsElapsed += missedSeconds;
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
       await _save();
-      log("⏱️ Added $missedSeconds seconds due to terminated state recovery.");
+      print("⏱️ Added $missedSeconds seconds due to terminated state recovery.");
     }
+    print("TAG:TimerController:totalTimeInSeconds==${_timerData?.totalTimeInSeconds}");
+    print("TAG:TimerController:autoStart==${autoStart}");
+    print("TAG:TimerController:TimerStatus==${_timerData!.timerStatus == TimerStatus.resumed}");
+
 
 
     if (autoStart &&_timerData?.wasTerminatedDuringTimer==true) {
+      print("📦 resumeTimer: ${_timerData?.taskName}");
       resumeTimer(forceResume: true);
     }
     _timerData=_timerData?.copyWith(wasTerminatedDuringTimer: false);
     _save();
     _emit();
-    log("📦 Last timer loaded for task: ${_timerData?.taskName}");
+    print("📦 Last timer loaded for task: ${_timerData?.taskName}");
   }
 
 
@@ -269,6 +273,7 @@ class TimerController with WidgetsBindingObserver {
       _appPausedAt = null;
       _appResumedAt = null;
       _isLazyPause = false;
+      print("⏸️ _loadMinimisedTime: ${sec}");
       _lazyResume();
     }
   }
@@ -283,7 +288,7 @@ class TimerController with WidgetsBindingObserver {
     );
     _save();
     _isLazyPause = true;
-    log("⏸️ Timer lazy paused: ${_timerData!.taskName}");
+    print("⏸️ Timer lazy paused: ${_timerData!.taskName}");
   }
 
   _lazyResume() {
@@ -305,7 +310,7 @@ class TimerController with WidgetsBindingObserver {
     _onResumed?.call(timerData!);
     _emit();
     _save();
-    log("⏯️ Timer lazy resumed: ${_timerData!.taskName}");
+    print("⏯️ Timer lazy resumed: ${_timerData!.taskName}");
   }
 
   Future<List<TimerData>> getAllTimers() async {
@@ -325,7 +330,7 @@ class TimerController with WidgetsBindingObserver {
     _timerData = null;
     _secondsElapsed = 0;
     _emit();
-    log("🗑️ Timer deleted.");
+    print("🗑️ Timer deleted.");
   }
 
   String getFormattedTime() {
@@ -337,7 +342,7 @@ class TimerController with WidgetsBindingObserver {
     if (_timerStreamController != null && !_timerStreamController!.isClosed) {
       _timerStreamController!.add(_timerData);
     } else {
-      log("⚠️ Attempted to emit after stream was closed.");
+      print("⚠️ Attempted to emit after stream was closed.");
     }
   }
 
@@ -347,7 +352,7 @@ class TimerController with WidgetsBindingObserver {
     if (_timerStreamController != null && !_timerStreamController!.isClosed) {
       _timerStreamController!.close();
     }
-    log("🧹 TimerController disposed.");
+    print("🧹 TimerController disposed.");
   }
 
   @override
@@ -364,7 +369,9 @@ class TimerController with WidgetsBindingObserver {
         }
         return;
       case AppLifecycleState.inactive:
+        print("inactive");
         Future.delayed(Duration(seconds: 1));
+        print("inactive:STOREDATA");
         return;
       case AppLifecycleState.paused:
         if (_appPausedAt == null && timerData != null&&timerData?.timerStatus==TimerStatus.started||timerData?.timerStatus==TimerStatus.resumed) {
@@ -376,29 +383,39 @@ class TimerController with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         _appPausedAt = null;
         _appResumedAt = null;
+        print("AppDeatched${_isLazyPause}");
+        if(_isLazyPause){
+          _scheduleWorkForTermination();
+
+        }
+
         await Future.delayed(Duration(seconds: 1));
+        print("AppDeatched:STOREDATA");
         return;
       case AppLifecycleState.hidden:
+        print("AppHidden");
+        Future.delayed(Duration(seconds: 1));
+        print("AppHidden:STOREDATA");
         return;
     }
   }
 
 
 
-  // Future<void> _scheduleWorkForTermination() async {
-  //   await Workmanager().registerOneOffTask(
-  //     'save_timer_termination_task',
-  //     'saveTimerState',
-  //     inputData: {
-  //       'taskId': _timerData?.taskId ?? '',
-  //       'wasTerminatedDuringTimer': true,
-  //     },
-  //     constraints: Constraints(
-  //       networkType: NetworkType.notRequired,
-  //       requiresBatteryNotLow: false,
-  //     ),
-  //   );
-  // }
+  Future<void> _scheduleWorkForTermination() async {
+    await Workmanager().registerOneOffTask(
+      'save_timer_termination_task',
+      'saveTimerState',
+      inputData: {
+        'taskId': _timerData?.taskId ?? '',
+        'wasTerminatedDuringTimer': true,
+      },
+      constraints: Constraints(
+        networkType: NetworkType.notRequired,
+        requiresBatteryNotLow: false,
+      ),
+    );
+  }
 
 }
 
