@@ -1,4 +1,6 @@
-## [1.0.23] - Patch Work
+## [1.0.24] - Patch Work
+- removed print
+- ## [1.0.23] - Patch Work
 - added workmanager for handling terminated state
 ## [1.0.22] - Patch Work
 - added workmanager for handling terminated state

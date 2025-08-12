@@ -155,7 +155,6 @@ class TimerController with WidgetsBindingObserver {
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _secondsElapsed++;
-      print("Timer resumed:  --${_secondsElapsed}");
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
       _emit();
       _save();
