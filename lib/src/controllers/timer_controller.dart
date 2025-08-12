@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_task_time_tracker/flutter_task_time_tracker.dart';
-import 'package:workmanager/workmanager.dart';
 import '../handlers/notification_handler.dart';
 import '../utils/const.dart';
 
@@ -81,13 +80,13 @@ class TimerController with WidgetsBindingObserver {
     _secondsElapsed = totalTimeInSeconds;
     await _save();
     _emit();
-    print("🕒 Timer initialized for task: $taskName [$taskId]");
+    log("🕒 Timer initialized for task: $taskName [$taskId]");
 
     // 👇 Trigger onInitListener if set
     if (_onInitListener != null) {
       _onInitListener!(_timerData!);
     }
-    print("🕒 Timer initialized for task: $taskName [$taskId]");
+    log("🕒 Timer initialized for task: $taskName [$taskId]");
   }
 
 
@@ -119,7 +118,7 @@ class TimerController with WidgetsBindingObserver {
     _onStarted?.call(timerData!);
     _emit();
     _save();
-    print("▶️ Timer started: ${_timerData!.taskName}");
+    log("▶️ Timer started: ${_timerData!.taskName}");
   }
 
   void pauseTimer({bool showNotification=true}) {
@@ -137,7 +136,7 @@ class TimerController with WidgetsBindingObserver {
     _onPaused?.call(timerData!);
     _emit();
     _save();
-    print("⏸️ Timer paused: ${_timerData!.taskName}");
+    log("⏸️ Timer paused: ${_timerData!.taskName}");
   }
 
   void resumeTimer({bool forceResume = false,bool showNotification=true}) {
