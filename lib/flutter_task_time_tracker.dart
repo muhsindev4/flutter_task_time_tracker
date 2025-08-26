@@ -49,8 +49,6 @@ class FlutterTaskTimeTracker {
     bool addSecondsWhenTerminatedState = true,
     bool autoStart = true,
   }) async {
-
-
     await _initStorage();
 
     await _notificationHandler.initNotification();
@@ -60,7 +58,5 @@ class FlutterTaskTimeTracker {
       addSecondsWhenTerminatedState: addSecondsWhenTerminatedState,
       autoStart: autoStart,
     );
-
   }
 }
-

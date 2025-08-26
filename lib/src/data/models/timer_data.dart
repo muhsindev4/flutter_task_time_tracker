@@ -50,7 +50,7 @@ class TimerData extends HiveObject {
     required this.taskName,
     required this.taskId,
     required this.timerStatus,
-     this.wasTerminatedDuringTimer=false,
+    this.wasTerminatedDuringTimer = false,
   });
 
   TimerData copyWith({
@@ -77,7 +77,8 @@ class TimerData extends HiveObject {
       taskId: taskId ?? this.taskId,
       timerStatus: timerStatus ?? this.timerStatus,
       metaData: metaData ?? this.metaData,
-      wasTerminatedDuringTimer: wasTerminatedDuringTimer ?? this.wasTerminatedDuringTimer,
+      wasTerminatedDuringTimer:
+          wasTerminatedDuringTimer ?? this.wasTerminatedDuringTimer,
     );
   }
 

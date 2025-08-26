@@ -13,6 +13,7 @@ class TaskPicker extends StatefulWidget {
   final String noDataText;
   final String headerText;
   final bool clearDataWhenLoadMore;
+
   /// Called when scrolled to bottom; must return more TimerData
   final Future<List<TimerData>> Function(int currentLength)? onLoadMore;
   const TaskPicker({
@@ -23,11 +24,11 @@ class TaskPicker extends StatefulWidget {
     this.initialTask,
     this.titleBuilder,
     this.subtitleBuilder,
-    this.hintText="Search task",
-    this.noDataText="No tasks are available at the moment.",
-    this.headerText="Choose Task",
+    this.hintText = "Search task",
+    this.noDataText = "No tasks are available at the moment.",
+    this.headerText = "Choose Task",
     this.onLoadMore,
-    this.clearDataWhenLoadMore=false,
+    this.clearDataWhenLoadMore = false,
   });
 
   @override
@@ -56,7 +57,7 @@ class _TaskPickerState extends State<TaskPicker> {
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 100 &&
+              _scrollController.position.maxScrollExtent - 100 &&
           !_isLoadingMore &&
           widget.onLoadMore != null) {
         _loadMoreTasks();
@@ -68,13 +69,13 @@ class _TaskPickerState extends State<TaskPicker> {
     _isLoadingMore = true;
     final moreTasks = await widget.onLoadMore!.call(_filteredTasks.length);
     if (moreTasks.isNotEmpty) {
-      if(widget.clearDataWhenLoadMore){
+      if (widget.clearDataWhenLoadMore) {
         _filteredTasks.clear();
         // _tasks.clear();
       }
       setState(() {
         // _tasks.addAll(moreTasks);
-        _filteredTasks=moreTasks;
+        _filteredTasks = moreTasks;
       });
     }
     _isLoadingMore = false;
@@ -192,7 +193,8 @@ class _TaskPickerState extends State<TaskPicker> {
                   Expanded(
                     child: ListView.separated(
                       controller: _scrollController,
-                      itemCount: _filteredTasks.length + (_isLoadingMore ? 1 : 0),
+                      itemCount:
+                          _filteredTasks.length + (_isLoadingMore ? 1 : 0),
                       itemBuilder: (context, index) {
                         if (index == _filteredTasks.length) {
                           return const Padding(

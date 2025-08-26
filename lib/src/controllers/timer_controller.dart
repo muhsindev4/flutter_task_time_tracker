@@ -11,7 +11,6 @@ class TimerController with WidgetsBindingObserver {
   final NotificationHandler _notificationHandler = NotificationHandler();
   DateTime? _lastLogTime;
 
-
   factory TimerController({
     void Function(TimerData timerData)? onStarted,
     void Function(TimerData timerData)? onPaused,
@@ -89,14 +88,13 @@ class TimerController with WidgetsBindingObserver {
     log("🕒 Timer initialized for task: $taskName [$taskId]");
   }
 
-
   void _initStreamController() {
     if (_timerStreamController == null || _timerStreamController!.isClosed) {
       _timerStreamController = StreamController<TimerData?>.broadcast();
     }
   }
 
-  void startTimer({bool showNotification=true}) {
+  void startTimer({bool showNotification = true}) {
     if (_timerData == null) return;
 
     _timerData = _timerData!.copyWith(
@@ -121,7 +119,7 @@ class TimerController with WidgetsBindingObserver {
     log("▶️ Timer started: ${_timerData!.taskName}");
   }
 
-  void pauseTimer({bool showNotification=true}) {
+  void pauseTimer({bool showNotification = true}) {
     if (_timerData == null) return;
 
     _timer?.cancel();
@@ -139,7 +137,7 @@ class TimerController with WidgetsBindingObserver {
     log("⏸️ Timer paused: ${_timerData!.taskName}");
   }
 
-  void resumeTimer({bool forceResume = false,bool showNotification=true}) {
+  void resumeTimer({bool forceResume = false, bool showNotification = true}) {
     if (_timerData == null ||
         (_timerData!.timerStatus != TimerStatus.paused && !forceResume)) {
       return;
@@ -166,7 +164,7 @@ class TimerController with WidgetsBindingObserver {
     log("⏯️ Timer resumed: ${_timerData!.taskName}");
   }
 
-  void stopTimer({bool showNotification=true}) {
+  void stopTimer({bool showNotification = true}) {
     _timer?.cancel();
     if (_timerData != null) {
       _timerData = _timerData!.copyWith(
@@ -231,10 +229,10 @@ class TimerController with WidgetsBindingObserver {
         timerData?.lastUpdateAt != null &&
         // (_timerData!.timerStatus == TimerStatus.started ||
         //     _timerData!.timerStatus == TimerStatus.resumed)
-        _timerData?.wasTerminatedDuringTimer==true
-    ) {
+        _timerData?.wasTerminatedDuringTimer == true) {
       final DateTime lastActiveTime = _timerData!.lastUpdateAt!;
-      final int missedSeconds = DateTime.now().difference(lastActiveTime).inSeconds;
+      final int missedSeconds =
+          DateTime.now().difference(lastActiveTime).inSeconds;
 
       _secondsElapsed += missedSeconds;
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
@@ -242,19 +240,19 @@ class TimerController with WidgetsBindingObserver {
       log("⏱️ Added $missedSeconds seconds due to terminated state recovery.");
     }
 
-    if (autoStart &&_timerData?.wasTerminatedDuringTimer==true) {
+    if (autoStart && _timerData?.wasTerminatedDuringTimer == true) {
       resumeTimer(forceResume: true);
     }
-    _timerData=_timerData?.copyWith(wasTerminatedDuringTimer: false);
+    _timerData = _timerData?.copyWith(wasTerminatedDuringTimer: false);
     _save();
     _emit();
     log("📦 Last timer loaded for task: ${_timerData?.taskName}");
   }
 
-
   Future<void> _loadMinimisedTime() async {
     if (_timerData?.timerStatus == TimerStatus.started ||
-        _timerData?.timerStatus == TimerStatus.resumed || _isLazyPause) {
+        _timerData?.timerStatus == TimerStatus.resumed ||
+        _isLazyPause) {
       int sec = _appResumedAt!.difference(_appPausedAt!).inSeconds;
       _secondsElapsed += sec;
       _appPausedAt = null;
@@ -265,7 +263,7 @@ class TimerController with WidgetsBindingObserver {
   }
 
   _lazyPause() {
-    if (_timerData == null ) return;
+    if (_timerData == null) return;
     //
     _timer?.cancel();
     _timerData = _timerData!.copyWith(
@@ -357,7 +355,10 @@ class TimerController with WidgetsBindingObserver {
       case AppLifecycleState.inactive:
         return;
       case AppLifecycleState.paused:
-        if (_appPausedAt == null && timerData != null&&timerData?.timerStatus==TimerStatus.started||timerData?.timerStatus==TimerStatus.resumed) {
+        if (_appPausedAt == null &&
+                timerData != null &&
+                timerData?.timerStatus == TimerStatus.started ||
+            timerData?.timerStatus == TimerStatus.resumed) {
           _lazyPause();
           _appPausedAt = DateTime.now();
         }
@@ -368,11 +369,7 @@ class TimerController with WidgetsBindingObserver {
         _appResumedAt = null;
         return;
       case AppLifecycleState.hidden:
-
         return;
     }
   }
-
 }
-
-
