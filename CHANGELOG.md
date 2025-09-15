@@ -1,3 +1,6 @@
+## [1.0.28] - Patch Work
+- fixed timer issue
+
 ## [1.0.27] - Patch Work
 - removed print
 ## [1.0.25] - Patch Work

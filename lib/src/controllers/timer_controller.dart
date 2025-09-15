@@ -147,7 +147,7 @@ class TimerController with WidgetsBindingObserver {
       resumedAt: DateTime.now(),
       timerStatus: TimerStatus.resumed,
     );
-
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _secondsElapsed++;
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
