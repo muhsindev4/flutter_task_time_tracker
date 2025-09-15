@@ -17,13 +17,11 @@ class TimerController with WidgetsBindingObserver {
     void Function(TimerData timerData)? onPaused,
     void Function(TimerData timerData)? onResumed,
     void Function(TimerData timerData)? onStopped,
-    void Function(TimerData timerData)? onRefresh,
   }) {
     _instance._onStarted ??= onStarted;
     _instance._onPaused ??= onPaused;
     _instance._onResumed ??= onResumed;
     _instance._onStopped ??= onStopped;
-    _instance._onRefresh ??= onRefresh;
     WidgetsBinding.instance.addObserver(_instance);
     return _instance;
   }
@@ -35,8 +33,6 @@ class TimerController with WidgetsBindingObserver {
   void Function(TimerData timerData)? _onResumed;
   void Function(TimerData timerData)? _onStopped;
 
-  // trigger every 15 seconds
-  void Function(TimerData timerData)? _onRefresh;
 
   Timer? _timer;
   TimerData? _timerData;
@@ -47,6 +43,7 @@ class TimerController with WidgetsBindingObserver {
   Stream<TimerData?>? get timerStream => _timerStreamController?.stream;
 
   TimerData? get timerData => _timerData;
+  Function? _onRefresh;
 
   DateTime? _appPausedAt;
   DateTime? _appResumedAt;
@@ -69,6 +66,7 @@ class TimerController with WidgetsBindingObserver {
     int totalTimeInSeconds = 0,
     TimerStatus timerStatus = TimerStatus.stopped,
     Map<String, dynamic>? metaData,
+    Function? onRefresh
   }) async {
     _timerData = TimerData(
       startedAt: startedAt,
@@ -92,6 +90,7 @@ class TimerController with WidgetsBindingObserver {
       _onInitListener!(_timerData!);
     }
     log("🕒 Timer initialized for task: $taskName [$taskId]");
+    _onRefresh=onRefresh;
   }
 
   void _initStreamController() {
@@ -100,17 +99,19 @@ class TimerController with WidgetsBindingObserver {
     }
   }
 
-  _refresh() {
-    if (_onRefresh == null) {
-      return;
-    }
-    _lastRefreshTime ??= DateTime.now();
 
-    if (_lastRefreshTime!.difference(DateTime.now()).inSeconds > 15) {
-      _onRefresh!(_timerData!);
-      _lastRefreshTime ??= DateTime.now();
+  void _refresh() {
+    if (_onRefresh == null) return;
+
+    if (_lastRefreshTime == null ||
+        DateTime.now().difference(_lastRefreshTime!).inSeconds >= 15) {
+      _onRefresh!();
+      _lastRefreshTime = DateTime.now();
+      log("🔄 Timer refreshed for task: ${_timerData?.taskName} [${_timerData?.taskId}] "
+          "at ${DateTime.now()} (total: ${_timerData?.totalTimeInSeconds}s)");
     }
   }
+
 
   void startTimer({bool showNotification = true}) {
     if (_timerData == null) return;

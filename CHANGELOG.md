@@ -1,3 +1,5 @@
+## [1.0.30] - Patch Work
+- Added `onRefresh` method to `TimerController`
 ## [1.0.29] - Patch Work
 - Added `onRefresh` method to `TimerController`
 
