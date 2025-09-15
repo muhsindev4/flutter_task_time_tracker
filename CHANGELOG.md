@@ -1,3 +1,6 @@
+## [1.0.29] - Patch Work
+- Added `onRefresh` method to `TimerController`
+
 ## [1.0.28] - Patch Work
 - fixed timer issue
 

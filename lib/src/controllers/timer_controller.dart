@@ -10,17 +10,20 @@ class TimerController with WidgetsBindingObserver {
   static final TimerController _instance = TimerController._internal();
   final NotificationHandler _notificationHandler = NotificationHandler();
   DateTime? _lastLogTime;
+  DateTime? _lastRefreshTime;
 
   factory TimerController({
     void Function(TimerData timerData)? onStarted,
     void Function(TimerData timerData)? onPaused,
     void Function(TimerData timerData)? onResumed,
     void Function(TimerData timerData)? onStopped,
+    void Function(TimerData timerData)? onRefresh,
   }) {
     _instance._onStarted ??= onStarted;
     _instance._onPaused ??= onPaused;
     _instance._onResumed ??= onResumed;
     _instance._onStopped ??= onStopped;
+    _instance._onRefresh ??= onRefresh;
     WidgetsBinding.instance.addObserver(_instance);
     return _instance;
   }
@@ -31,6 +34,9 @@ class TimerController with WidgetsBindingObserver {
   void Function(TimerData timerData)? _onPaused;
   void Function(TimerData timerData)? _onResumed;
   void Function(TimerData timerData)? _onStopped;
+
+  // trigger every 15 seconds
+  void Function(TimerData timerData)? _onRefresh;
 
   Timer? _timer;
   TimerData? _timerData;
@@ -94,6 +100,18 @@ class TimerController with WidgetsBindingObserver {
     }
   }
 
+  _refresh() {
+    if (_onRefresh == null) {
+      return;
+    }
+    _lastRefreshTime ??= DateTime.now();
+
+    if (_lastRefreshTime!.difference(DateTime.now()).inSeconds > 15) {
+      _onRefresh!(_timerData!);
+      _lastRefreshTime ??= DateTime.now();
+    }
+  }
+
   void startTimer({bool showNotification = true}) {
     if (_timerData == null) return;
 
@@ -108,6 +126,7 @@ class TimerController with WidgetsBindingObserver {
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
       _emit();
       _save();
+      _refresh();
     });
     if (showNotification) {
       _notificationHandler.showNotification(timerData!);
@@ -153,6 +172,7 @@ class TimerController with WidgetsBindingObserver {
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
       _emit();
       _save();
+      _refresh();
     });
     if (showNotification) {
       _notificationHandler.showNotification(timerData!);
@@ -284,12 +304,13 @@ class TimerController with WidgetsBindingObserver {
       resumedAt: DateTime.now(),
       timerStatus: TimerStatus.resumed,
     );
-
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _secondsElapsed++;
       _timerData = _timerData!.copyWith(totalTimeInSeconds: _secondsElapsed);
       _emit();
       _save();
+      _refresh();
     });
     _onResumed?.call(timerData!);
     _emit();
